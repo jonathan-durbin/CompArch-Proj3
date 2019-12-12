@@ -1,0 +1,19 @@
+Ia
+1000
+Ib
+2000
+Lan
++a1a # loop:
+Lax
+Ex03
+Sxb
++b1b
+-n1n
+bn06 # <- loop
+H
+
+data: 0x1000 9
+# 8 0 1 1 0 1 1 0 0
+4 0 1 1 0 1 1 0 0
+
+data: 0x2000 8

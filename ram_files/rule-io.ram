@@ -1,0 +1,89 @@
+# global, w h m r
+Iw
+0050
+Ih
+2200
+!h01
+!h02
+Im
+4000
+Ir
+3000
+JR
+1000
+H
+
+code: 0x1000 # locals i j s -- temps T s -- return to R
++m0i
+JO
+2000
++wij
++1jj
+Lis   # row:
++rss
++1ii
+LiT
+*2TT
++Tss
++1ii
+LiT
+-i1i
+*4TT
++Tss
+Lss
+Ssj
++1jj
+-jmT
++1TT
+%TwT
+bT11 # <- row
++2jj
++2ii
+JO
+2000
+*hwT
++mTT
+-TjT
+gT19 # <- row
+RR
+
+code: 0x2000 # input -- i (start of row) -- temps k u v s c T -- return to O
+-PwT
+-T3T
+Ic
+2100
++T0k
++i0u
++iwv
+Lus  # loop:
++css
+Lss
+Ssk
++k1k
++u1u
+-uvs
+bs07 # <- loop
++19s
+Ssk
++k1k
+S0k
+!T01
+RO
+
+data: 0x2100
+# 32 88
+32 79
+# 32 0x2588
+
+data: 0x2200
+69 110 116 101 114 32 116 104 101 32 110 117 109 98 101 114 32 111 102 32 114 111 119 115 58 32 0
+
+data: 0x3000 8
+0 1 0 1 1 0 1 0 # Rule 90
+# 0 1 1 1 1 0 0 0 # Rule 30
+# 0 1 1 1 0 1 1 0 # Rule 110
+# 0 0 1 1 1 1 0 0 # Rule 60
+
+data: 0x4000 0x50 0x50
+# 0 1 0 1  1 0 0 1  0 0 1 0  0 0 1 0
+0 0 0 0  0 0 0 1  0 0 0 0  0 0 1 0  0 0 0 0  0 0 0 0  0 0 0 0  0 0 0 0  0 0 1 0

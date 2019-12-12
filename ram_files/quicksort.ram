@@ -1,0 +1,84 @@
+# https://www.geeksforgeeks.org/iterative-quick-sort/
+
+Ia
+4000
+Lan
++1aa
+Is
+5000
+-n1h
+JQ
+1000
+H
+
+code: 0x1000 # quicksort a l h s -- T t  return to Q
++0st
+Slt
++1tt
+Sht
+-tsT  # while:
+<T18  # -> done:
+Lth
+-t1t
+Ltl
+-t1t
+JR
+2000
+-i2T
+-TlT
+<T06  # -> skip
++t1t
+Slt
++t1t
+-i1T
+STt
++i2T  # skip:
+-ThT
+>T06  # loop
++t1t
++i1T
+STt
++t1t
+Sht
+b118  # <- while  # loop:
+RQ    # done:
+
+code: 0x2000 # partition a l h -- i j x T  return to R
++ahx
+Lxx
+#-h1h
+-l1i
++0lj
+B10b  # -> cond
++ajT  # :loop
+LTT
+-TxT
+>T06  # -> inc
++1ii
++aiA
++ajB
+JS
+3000
++1jj  # inc:
+-jhT  # cond:
+lT0b  # <- loop
++1ii
+#+1hh
++aiA
++ahB
+JS
+3000
+RR
+
+code: 0x3000 # swap A B -- T  return to S
+LAT
+LBU
+SUA
+STB
+RS
+
+data: 0x4000
+10 50  96  36  61  19  27  32  90  54  63
+# 3 50  96  36
+
+data: 0x5000 # stack
