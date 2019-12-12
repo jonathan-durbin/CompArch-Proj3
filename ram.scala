@@ -10,7 +10,7 @@ var mem_trunc  = collection.mutable.Map[Int, Int]()
 var regs       = collection.mutable.Map[Char, Int]()
 var new_regs   = List[Char]()
 var new_mem    = List[(Int,Int)]()
-var hazard     = ('0', 0) // (register, inst_loc)
+var hazard     = List('0', '0', 0) // (reg1, reg2, mem_loc)
 
 
 def writeM(a: Int, v: Int) = {
@@ -28,17 +28,12 @@ def writeR(a: Char, v: Int) = {
     // only write to memory if the address is not in [0, 9]
     if (!('0' <= a && a <= '9')) regs(a) = v
     if (mode == "1") new_regs = a::new_regs
-    if (mode == "4" && a != 'P') hazard = (a, readR('P'))
 }
 
 def readR(a: Char):Int = {
     if('0' <= a && a <= '9'){
         readValue(a.toString)
     } else if (regs.contains(a)) {
-        // println(f"address = $a, hazard._1 = ${hazard._1}")
-        if (a == hazard._1 && hazard._1 != 'P') {
-            println(f"Read-after-write hazard on lines (${hazard._2/2}, ${readR('P')/2}) between ${readI(hazard._2)} and ${readI(readR('P'))}")
-        }
         regs(a)
     } else 0
 }
@@ -63,6 +58,7 @@ def readValue(a: String) = {
 var stop = false
 // for (line <- Source.fromFile(filename).getLines) {
 val lines = Source.fromFile(filename).getLines
+var writeSeen = false
 while (lines.hasNext && !stop) {
     val line = lines.next()
     if (line.startsWith("code: ")) {
@@ -79,15 +75,56 @@ while (lines.hasNext && !stop) {
         if (codeMode) {
             val code = line.split("#")(0).trim().padTo(4,' ')
             if (code != "    ") {
-                if (code(0) == '!' && mode != "3") {
-                    println("Cannot use OS I/O operations unless in mode 3. Currently in mode: " + mode)
-                    mem = collection.mutable.Map[Int, Int]()
-                    stop = true
-                } else {
-                    writeM(cur,   code(0).toInt % 256
-                                +(code(1).toInt % 256)*256)
-                    writeM(cur+1, code(2).toInt % 256
-                                +(code(3).toInt % 256)*256)
+                writeM(cur,   code(0).toInt % 256
+                            +(code(1).toInt % 256)*256)
+                writeM(cur+1, code(2).toInt % 256
+                            +(code(3).toInt % 256)*256)
+                if (mode == "4") {
+                    if (!writeSeen) code(0) match {
+                        case 'B' if (code(1) != 0) => { hazard = List('P', '0', cur); writeSeen = true }
+                        case 'b' if (code(1) != 0) => { hazard = List('P', '0', cur); writeSeen = true }
+                        case 'E' if (code(1) == 0) => { hazard = List('P', '0', cur); writeSeen = true }
+                        case 'e' if (code(1) == 0) => { hazard = List('P', '0', cur); writeSeen = true }
+                        case '<' if (code(1) < 0)  => { hazard = List('P', '0', cur); writeSeen = true }
+                        case 'l' if (code(1) < 0)  => { hazard = List('P', '0', cur); writeSeen = true }
+                        case '>' if (code(1) > 0)  => { hazard = List('P', '0', cur); writeSeen = true }
+                        case 'g' if (code(1) > 0)  => { hazard = List('P', '0', cur); writeSeen = true }
+                        case 'L' => { hazard = List(code(2), '0', cur); writeSeen = true }
+                        case '+' => { hazard = List(code(3), '0', cur); writeSeen = true }
+                        case '-' => { hazard = List(code(3), '0', cur); writeSeen = true }
+                        case '*' => { hazard = List(code(3), '0', cur); writeSeen = true }
+                        case '/' => { hazard = List(code(3), '0', cur); writeSeen = true }
+                        case '%' => { hazard = List(code(3), '0', cur); writeSeen = true }
+                        case 'J' => { hazard = List(code(1), 'P', cur); writeSeen = true }
+                        case 'I' => { hazard = List(code(1), 'P', cur); writeSeen = true }
+                        case '!' => { hazard = List(code(1), '0', cur); writeSeen = true }
+                        case 'R' => { hazard = List('P', '0', cur); writeSeen = true }
+                        case  _  => // do nothing
+                    } else {
+                        val s = f"Read-write hazard between addresses ${hazard(2)} and ${cur}, instructions ${readI(hazard(2))} and ${code}." 
+                        code(0) match {
+                            case '+' => if (hazard.contains(code(1)) || hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
+                            case '-' => if (hazard.contains(code(1)) || hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
+                            case '*' => if (hazard.contains(code(1)) || hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
+                            case '/' => if (hazard.contains(code(1)) || hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
+                            case '%' => if (hazard.contains(code(1)) || hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
+                            case 'L' => if (hazard.contains(code(1)) || hazard.contains('P')) { println(s); writeSeen = false }
+                            case 'S' => if (hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
+                            case '!' => if (hazard.contains(code(1)) || hazard.contains('P')) { println(s); writeSeen = false }
+                            case 'R' => if (hazard.contains(code(1))) { println(s); writeSeen = false }
+                            case 'B' => if (hazard.contains('P')) { println(s); writeSeen = false }
+                            case 'b' => if (hazard.contains('P')) { println(s); writeSeen = false }
+                            case 'E' => if (hazard.contains('P')) { println(s); writeSeen = false }
+                            case 'e' => if (hazard.contains('P')) { println(s); writeSeen = false }
+                            case '<' => if (hazard.contains('P')) { println(s); writeSeen = false }
+                            case 'l' => if (hazard.contains('P')) { println(s); writeSeen = false }
+                            case '>' => if (hazard.contains('P')) { println(s); writeSeen = false }
+                            case 'g' => if (hazard.contains('P')) { println(s); writeSeen = false }
+                            case 'J' => if (hazard.contains('P')) { println(s); writeSeen = false }
+                            case 'I' => if (hazard.contains('P')) { println(s); writeSeen = false }
+                            case _   => writeSeen = false
+                        }
+                    }
                     cur += 2
                 }
             }
@@ -291,7 +328,7 @@ if (mode == "2") {
         if (d._2 != 0) {
             // print the data starting at a until d._2 is reached
             for (i <- 1 to d._2) {
-                print(readM(a))
+                print(readM(a)) 
                 a += 1
             }
             print('\n')
