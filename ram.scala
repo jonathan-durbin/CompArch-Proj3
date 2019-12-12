@@ -101,7 +101,7 @@ while (lines.hasNext && !stop) {
                         case 'R' => { hazard = List('P', '0', cur); writeSeen = true }
                         case  _  => // do nothing
                     } else {
-                        val s = f"Read-write hazard between addresses ${hazard(2)} and ${cur}, instructions ${readI(hazard(2))} and ${code}." 
+                        val s = f"Read-write hazard between addresses ${hazard(2)} and ${cur}, instructions ${readI(hazard(2))} and ${code}."
                         code(0) match {
                             case '+' => if (hazard.contains(code(1)) || hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
                             case '-' => if (hazard.contains(code(1)) || hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
@@ -328,7 +328,7 @@ if (mode == "2") {
         if (d._2 != 0) {
             // print the data starting at a until d._2 is reached
             for (i <- 1 to d._2) {
-                print(readM(a)) 
+                print(readM(a))
                 a += 1
             }
             print('\n')
