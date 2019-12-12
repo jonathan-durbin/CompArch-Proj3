@@ -3,40 +3,45 @@ mode        = ARGS[2]
 codeMode    = true
 cur         = 0
 mask        = 65535
-mem         = Dict{Int, Int}()
+mem         = Dict{Int16, Int16}()
 mem_trunc   = Dict{Int, Int}()
 regs        = Dict{Char, Int}()
-new_regs    = Array{Char}()
-new_mem     = Array{Array{Int, Int}, 1}()
-hazard      = tuple('0', 0)
+new_regs    = Array{Char, 1}()
+new_mem     = Array{Array{Int, 1}, 1}()
+hazard      = tuple('0', '0', 0)  # (reg1, reg2, mem_location)
 
-function writeM(a:: Int, v:: Int)
-    get!(mem, a, v & mask)
-    mode == "1" && push!(new_mem, Array(a, mem[a]))
+
+"Write the value v to an address a in memory."
+function writeM(a:: Int, v:: Int16)
+    mem[a] = v
+    mode == "1" && push!(new_mem, Array{Int, 1}(a, mem[a]))
 end
 
-function readM(a:: Int)
+"Read from address a in memory, if address not present, return 0"
+function readM(a:: Int16):: Int16
     get(mem, a, 0)
 end
 
-function writeR(a:: Char, v:: Int)
-    !('0' <= a <= '9') && get!(regs, a, v)
+"Write the value v to register a if a is not a digit"
+function writeR(a:: Char, v:: Int16)
+    !('0' <= a <= '9') && (regs[a] = v)
     mode == "1" && push!(new_regs, a)
-    mode == "4" && a != 'P' && hazard = tuple(a, readR('P'))
 end
 
-function readR(a:: Char)
+"Output the value in register a. Registers 0-9 only hold their values."
+function readR(a:: Char):: Int
     '0' <= a <= '9' ?
-        readValue(String(a)) :
+        readValue(string(a)) :
         get(regs, a, 0)
 end
 
-function readI(a:: Int)
+"Read the instruction at address a. Return "
+function readI(a:: Int16)
     x = readM(a)
     y = readM(a+1)
     t = [
-        x & 0xff, (x >> 8) & 0xff,
-        y & 0xff, (y >> 8) & 0xff
+        x & 0x00ff, x & 0xff00,
+        y & 0x00ff, y & 0xff00
     ]
     String(map(x -> Char(x), t))
 end
@@ -47,30 +52,43 @@ function readValue(a:: String)
         parse(Int, a, base=10)
 end
 
+
+stop = false
+writeSeen = false
 open(filename, "r") do file
     global codeMode, cur
     for line in readlines(file)
+        stop && break
         if startswith(line, "code: ")
             address = split(replace(line, "code: "=>""))[1]
             println("Address: $address")
             cur = readValue(String(address))
             codeMode = true
         elseif startswith(line, "data: ")
-            address = split(replace(line, "data: "=>""))[1]
-            cur = readValue(String(address))
+            header = split(replace(line, "data: "=>""))
+            cur = readValue(String(header[1]))
+            trunc = length(header) == 2 ? readValue(header[2]) : 0
+            mem_trunc(cur) = trunc
             codeMode = false
         else
             if codeMode
                 code = rpad(strip(split(line, "#")[1]), 4)
                 if code != "    "
                     writeM(
-                        cur,   Int(code[1]) % 256
-                            + (Int(code[2]) % 256) * 256
+                        cur,   Int16(Int(code[1]) % 256
+                            + (Int(code[2]) % 256) * 256)
                     )
                     writeM(
-                        cur+1, Int(code[3]) % 256
-                            + (Int(code[4]) % 256) * 256
+                        cur+1, Int16(Int(code[3]) % 256
+                            + (Int(code[4]) % 256) * 256)
                     )
+                    if mode == "4"
+                        if !writeSeen
+                            nothing
+                        else
+                            nothing
+                        end
+                    end
                     cur += 2
                 end
             else
@@ -88,7 +106,7 @@ open(filename, "r") do file
 end
 
 
-writeR('P', 0)
+# writeR('P', 0)
 inst = ""
 halt = false
 
@@ -223,8 +241,7 @@ while !halt
 
     # Return and halt
     elseif c == 'R'
-        s = inst[1]
-        writeR('P', readR(s))
+        writeR('P', readR(inst[1]))
 
     elseif c == 'H'
         halt = true
@@ -260,7 +277,15 @@ while !halt
     end
 
     println(inst)
-    # inst == "H   " && break
-end
 
-println(regs)
+    if mode == "1" println("$inst, R: $new_regs, M: $new_mem")
+    elseif !(mode in ["2", "3", "4"]) error("Not a valid mode!")
+    end
+
+    new_regs = Array{Char}()
+    new_mem  = Array{Array{Int, Int}, 1}()
+end  # execution block
+
+# println(regs)
+if mode == "2"
+    nothing
