@@ -77,8 +77,8 @@ SUA
 STB
 RS
 
-data: 0x4000
+data: 0x4000 11
 10 50  96  36  61  19  27  32  90  54  63
 # 3 50  96  36
 
-data: 0x5000 # stack
+data: 0x5000 12 # stack
