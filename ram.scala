@@ -55,11 +55,10 @@ def readValue(a: String) = {
 }
 
 
-var stop = false
 // for (line <- Source.fromFile(filename).getLines) {
 val lines = Source.fromFile(filename).getLines
 var writeSeen = false
-while (lines.hasNext && !stop) {
+while (lines.hasNext) {
     val line = lines.next()
     if (line.startsWith("code: ")) {
         val address = line.stripPrefix("code: ").split(" ")(0)
@@ -96,7 +95,7 @@ while (lines.hasNext && !stop) {
                         case '/' => { hazard = List(code(3), '0', cur); writeSeen = true }
                         case '%' => { hazard = List(code(3), '0', cur); writeSeen = true }
                         case 'J' => { hazard = List(code(1), 'P', cur); writeSeen = true }
-                        case 'I' => { hazard = List(code(1), 'P', cur); writeSeen = true }
+                        case 'I' => { hazard = List(code(1), 'P', cur); writeSeen = true }  // may not be 'P'
                         case '!' => { hazard = List(code(1), '0', cur); writeSeen = true }
                         case 'R' => { hazard = List('P', '0', cur); writeSeen = true }
                         case  _  => // do nothing
