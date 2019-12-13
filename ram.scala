@@ -57,7 +57,9 @@ def readValue(a: String) = {
 
 // for (line <- Source.fromFile(filename).getLines) {
 val lines = Source.fromFile(filename).getLines
-var writeSeen = false
+var destReg = ""     // name of the destination register
+// var sourceRegs = ""  // the 0, 1, or 2 source registers
+var lastInst = ""    // the previous instruction
 while (lines.hasNext) {
     val line = lines.next()
     if (line.startsWith("code: ")) {
@@ -79,52 +81,30 @@ while (lines.hasNext) {
                 writeM(cur+1, code(2).toInt % 256
                             +(code(3).toInt % 256)*256)
                 if (mode == "4") {
-                    if (!writeSeen) code(0) match {
-                        case 'B' if (code(1) != 0) => { hazard = List('P', '0', cur); writeSeen = true }
-                        case 'b' if (code(1) != 0) => { hazard = List('P', '0', cur); writeSeen = true }
-                        case 'E' if (code(1) == 0) => { hazard = List('P', '0', cur); writeSeen = true }
-                        case 'e' if (code(1) == 0) => { hazard = List('P', '0', cur); writeSeen = true }
-                        case '<' if (code(1) < 0)  => { hazard = List('P', '0', cur); writeSeen = true }
-                        case 'l' if (code(1) < 0)  => { hazard = List('P', '0', cur); writeSeen = true }
-                        case '>' if (code(1) > 0)  => { hazard = List('P', '0', cur); writeSeen = true }
-                        case 'g' if (code(1) > 0)  => { hazard = List('P', '0', cur); writeSeen = true }
-                        case 'L' => { hazard = List(code(2), '0', cur); writeSeen = true }
-                        case '+' => { hazard = List(code(3), '0', cur); writeSeen = true }
-                        case '-' => { hazard = List(code(3), '0', cur); writeSeen = true }
-                        case '*' => { hazard = List(code(3), '0', cur); writeSeen = true }
-                        case '/' => { hazard = List(code(3), '0', cur); writeSeen = true }
-                        case '%' => { hazard = List(code(3), '0', cur); writeSeen = true }
-                        case 'J' => { hazard = List(code(1), 'P', cur); writeSeen = true }
-                        case 'I' => { hazard = List(code(1), 'P', cur); writeSeen = true }  // may not be 'P'
-                        case '!' => { hazard = List(code(1), '0', cur); writeSeen = true }
-                        case 'R' => { hazard = List('P', '0', cur); writeSeen = true }
+                    var s = f"Hazard: ${lastInst}, ${code}"
+                    code(0) match {
+                        case 'B' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
+                        case 'b' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
+                        case 'E' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
+                        case 'e' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
+                        case '<' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
+                        case 'l' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
+                        case '>' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
+                        case 'g' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
+                        case 'L' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = code(2).toString }
+                        case '+' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
+                        case '-' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
+                        case '*' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
+                        case '/' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
+                        case '%' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
+                        case 'J' => { destReg = code(1).toString }
+                        case 'I' => { destReg = code(1).toString }
+                        case '!' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = code(1).toString }
+                        case 'R' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
                         case  _  => // do nothing
-                    } else {
-                        val s = f"Read-write hazard between addresses ${hazard(2)} and ${cur}, instructions ${readI(hazard(2))} and ${code}."
-                        code(0) match {
-                            case '+' => if (hazard.contains(code(1)) || hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
-                            case '-' => if (hazard.contains(code(1)) || hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
-                            case '*' => if (hazard.contains(code(1)) || hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
-                            case '/' => if (hazard.contains(code(1)) || hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
-                            case '%' => if (hazard.contains(code(1)) || hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
-                            case 'L' => if (hazard.contains(code(1)) || hazard.contains('P')) { println(s); writeSeen = false }
-                            case 'S' => if (hazard.contains(code(2)) || hazard.contains('P')) { println(s); writeSeen = false }
-                            case '!' => if (hazard.contains(code(1)) || hazard.contains('P')) { println(s); writeSeen = false }
-                            case 'R' => if (hazard.contains(code(1))) { println(s); writeSeen = false }
-                            case 'B' => if (hazard.contains('P')) { println(s); writeSeen = false }
-                            case 'b' => if (hazard.contains('P')) { println(s); writeSeen = false }
-                            case 'E' => if (hazard.contains('P')) { println(s); writeSeen = false }
-                            case 'e' => if (hazard.contains('P')) { println(s); writeSeen = false }
-                            case '<' => if (hazard.contains('P')) { println(s); writeSeen = false }
-                            case 'l' => if (hazard.contains('P')) { println(s); writeSeen = false }
-                            case '>' => if (hazard.contains('P')) { println(s); writeSeen = false }
-                            case 'g' => if (hazard.contains('P')) { println(s); writeSeen = false }
-                            case 'J' => if (hazard.contains('P')) { println(s); writeSeen = false }
-                            case 'I' => if (hazard.contains('P')) { println(s); writeSeen = false }
-                            case _   => writeSeen = false
-                        }
                     }
                 }
+                lastInst = code
                 cur += 2
             }
         } else {
