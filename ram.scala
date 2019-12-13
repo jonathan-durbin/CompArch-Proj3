@@ -82,51 +82,30 @@ while (lines.hasNext) {
                             +(code(3).toInt % 256)*256)
                 if (mode == "4") {
                     var s = f"Hazard: ${lastInst}, ${code}"
-                    if ("BbEe<l>g".contains(code(0))) {
+                    if ("BbEe<l>g".contains(code(0))) {  // branches
                         if (f"${code(1)}".contains(destReg)) println(s)
                         destReg = " "
                         lastInst = code
-                    } else if ("+-*/%".contains(code(0))) {
+                    } else if ("+-*/%".contains(code(0))) {  // maths
                         if (f"${code(1)}${code(2)}".contains(destReg)) println(s)
                         destReg = code(3).toString
                         lastInst = code
-                    } else if ("JI".contains(code(0))) {
+                    } else if ("JI".contains(code(0))) {  // jumps/immediates
                         destReg = code(1).toString
                         lastInst = code
-                    } else if ('!' == code(0)) {
+                    } else if ('!' == code(0)) {  // syscalls
                         if (f"${code(1)}".contains(destReg)) println(s)
                         destReg = code(1).toString
                         lastInst = code
-                    } else if ('L' == code(0)) {
+                    } else if ('L' == code(0)) {  // loads
                         if (f"${code(1)}".contains(destReg)) println(s)
                         destReg = code(2).toString
                         lastInst = code
-                    } else if ('R' == code(0)) {
+                    } else if ('R' == code(0)) {  // returns
                         if (f"${code(1)}".contains(destReg)) println(s)
                         destReg = " "
                         lastInst = code
                     }
-                    // code(0) match {
-                    //     case 'B' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
-                    //     case 'b' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
-                    //     case 'E' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
-                    //     case 'e' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
-                    //     case '<' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
-                    //     case 'l' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
-                    //     case '>' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
-                    //     case 'g' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
-                    //     case '+' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
-                    //     case '-' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
-                    //     case '*' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
-                    //     case '/' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
-                    //     case '%' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
-                    //     case 'J' => { destReg = code(1).toString }
-                    //     case 'I' => { destReg = code(1).toString }
-                    //     case '!' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = code(1).toString }
-                    //     case 'L' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = code(2).toString }
-                    //     case 'R' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
-                    //     case  _  => // do nothing
-                    // }
                 }
                 cur += 2
             }
