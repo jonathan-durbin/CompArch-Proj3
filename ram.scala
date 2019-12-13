@@ -57,7 +57,7 @@ def readValue(a: String) = {
 
 // for (line <- Source.fromFile(filename).getLines) {
 val lines = Source.fromFile(filename).getLines
-var destReg = ""     // name of the destination register
+var destReg = " "     // name of the destination register
 // var sourceRegs = ""  // the 0, 1, or 2 source registers
 var lastInst = ""    // the previous instruction
 while (lines.hasNext) {
@@ -82,29 +82,52 @@ while (lines.hasNext) {
                             +(code(3).toInt % 256)*256)
                 if (mode == "4") {
                     var s = f"Hazard: ${lastInst}, ${code}"
-                    code(0) match {
-                        case 'B' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
-                        case 'b' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
-                        case 'E' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
-                        case 'e' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
-                        case '<' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
-                        case 'l' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
-                        case '>' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
-                        case 'g' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
-                        case 'L' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = code(2).toString }
-                        case '+' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
-                        case '-' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
-                        case '*' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
-                        case '/' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
-                        case '%' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
-                        case 'J' => { destReg = code(1).toString }
-                        case 'I' => { destReg = code(1).toString }
-                        case '!' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = code(1).toString }
-                        case 'R' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = "" }
-                        case  _  => // do nothing
+                    if ("BbEe<l>g".contains(code(0))) {
+                        if (f"${code(1)}".contains(destReg)) println(s)
+                        destReg = " "
+                        lastInst = code
+                    } else if ("+-*/%".contains(code(0))) {
+                        if (f"${code(1)}${code(2)}".contains(destReg)) println(s)
+                        destReg = code(3).toString
+                        lastInst = code
+                    } else if ("JI".contains(code(0))) {
+                        destReg = code(1).toString
+                        lastInst = code
+                    } else if ('!' == code(0)) {
+                        if (f"${code(1)}".contains(destReg)) println(s)
+                        destReg = code(1).toString
+                        lastInst = code
+                    } else if ('L' == code(0)) {
+                        if (f"${code(1)}".contains(destReg)) println(s)
+                        destReg = code(2).toString
+                        lastInst = code
+                    } else if ('R' == code(0)) {
+                        if (f"${code(1)}".contains(destReg)) println(s)
+                        destReg = " "
+                        lastInst = code
                     }
+                    // code(0) match {
+                    //     case 'B' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
+                    //     case 'b' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
+                    //     case 'E' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
+                    //     case 'e' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
+                    //     case '<' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
+                    //     case 'l' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
+                    //     case '>' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
+                    //     case 'g' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
+                    //     case '+' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
+                    //     case '-' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
+                    //     case '*' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
+                    //     case '/' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
+                    //     case '%' => { if (f"${code(1)}${code(2)}".contains(destReg)) println(s); destReg = code(3).toString }
+                    //     case 'J' => { destReg = code(1).toString }
+                    //     case 'I' => { destReg = code(1).toString }
+                    //     case '!' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = code(1).toString }
+                    //     case 'L' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = code(2).toString }
+                    //     case 'R' => { if (f"${code(1)}".contains(destReg)) println(s); destReg = " " }
+                    //     case  _  => // do nothing
+                    // }
                 }
-                lastInst = code
                 cur += 2
             }
         } else {
