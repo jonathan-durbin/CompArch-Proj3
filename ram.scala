@@ -125,8 +125,8 @@ while (lines.hasNext && !stop) {
                             case _   => writeSeen = false
                         }
                     }
-                    cur += 2
                 }
+                cur += 2
             }
         } else {
             val data = line.split("#")(0).trim()
@@ -141,183 +141,181 @@ while (lines.hasNext && !stop) {
 }
 
 
-if (!stop) {
-    writeR('P', 0)
-    var inst = ""
-    var halt = false
-    do {
-        inst = readI(readR('P'))
-        inst(0) match{
-            // Load and Store
-            case 'L' => val r = inst(1)
-                        val d = inst(2)
-                        val a = readR(r)
-                        val v = readM(a)
-                        writeR(d, v)
+writeR('P', 0)
+var inst = ""
+var halt = false
+do {
+    inst = readI(readR('P'))
+    inst(0) match{
+        // Load and Store
+        case 'L' => val r = inst(1)
+                    val d = inst(2)
+                    val a = readR(r)
+                    val v = readM(a)
+                    writeR(d, v)
+                    writeR('P', readR('P') + 2)
+        case 'S' => val s = inst(1)
+                    val w = inst(2)
+                    val a = readR(w)
+                    val v = readR(s)
+                    writeM(a, v)
+                    writeR('P', readR('P') + 2)
+        // Mathematical Operands
+        case '+' => val s1 = inst(1)
+                    val s2 = inst(2)
+                    val d = inst(3)
+                    val v1 = readR(s1)
+                    val v2 = readR(s2)
+                    val v = v1 + v2
+                    writeR(d, v)
+                    writeR('P', readR('P') + 2)
+        case '-' => val s1 = inst(1)
+                    val s2 = inst(2)
+                    val d = inst(3)
+                    val v1 = readR(s1)
+                    val v2 = readR(s2)
+                    val v = v1 - v2
+                    writeR(d, v)
+                    writeR('P', readR('P') + 2)
+        case '*' => val s1 = inst(1)
+                    val s2 = inst(2)
+                    val d = inst(3)
+                    val v1 = readR(s1)
+                    val v2 = readR(s2)
+                    val v = v1 * v2
+                    writeR(d, v)
+                    writeR('P', readR('P') + 2)
+        case '/' => val s1 = inst(1)
+                    val s2 = inst(2)
+                    val d = inst(3)
+                    val v1 = readR(s1)
+                    val v2 = readR(s2)
+                    val v = v1 / v2
+                    writeR(d, v)
+                    writeR('P', readR('P') + 2)
+        case '%' => val s1 = inst(1)
+                    val s2 = inst(2)
+                    val d = inst(3)
+                    val v1 = readR(s1)
+                    val v2 = readR(s2)
+                    val v = v1 % v2
+                    writeR(d, v)
+                    writeR('P', readR('P') + 2)
+        // Branch Operands
+        case 'B' => val s = inst(1)
+                    val hh_hl = inst(2).toString + inst(3).toString
+                    if (readR(s) != 0) {
+                        writeR('P', readR('P') + readValue("0x" + hh_hl) * 2)
+                    } else {
                         writeR('P', readR('P') + 2)
-            case 'S' => val s = inst(1)
-                        val w = inst(2)
-                        val a = readR(w)
-                        val v = readR(s)
-                        writeM(a, v)
+                    }
+        case 'b' => val s = inst(1)
+                    val hh_hl = inst(2).toString + inst(3).toString
+                    if(readR(s) != 0) {
+                        writeR('P', readR('P') - readValue("0x" + hh_hl) * 2)
+                    } else {
                         writeR('P', readR('P') + 2)
-            // Mathematical Operands
-            case '+' => val s1 = inst(1)
-                        val s2 = inst(2)
-                        val d = inst(3)
-                        val v1 = readR(s1)
-                        val v2 = readR(s2)
-                        val v = v1 + v2
-                        writeR(d, v)
+                    }
+        case 'E' => val s = inst(1)
+                    val hh_hl = inst(2).toString + inst(3).toString
+                    if(readR(s) == 0) {
+                        writeR('P', readR('P') + readValue("0x" + hh_hl) * 2)
+                    } else {
                         writeR('P', readR('P') + 2)
-            case '-' => val s1 = inst(1)
-                        val s2 = inst(2)
-                        val d = inst(3)
-                        val v1 = readR(s1)
-                        val v2 = readR(s2)
-                        val v = v1 - v2
-                        writeR(d, v)
+                    }
+        case 'e' => val s = inst(1)
+                    val hh_hl = inst(2).toString + inst(3).toString
+                    if(readR(s) == 0) {
+                        writeR('P', readR('P') - readValue("0x" + hh_hl) * 2)
+                    } else {
                         writeR('P', readR('P') + 2)
-            case '*' => val s1 = inst(1)
-                        val s2 = inst(2)
-                        val d = inst(3)
-                        val v1 = readR(s1)
-                        val v2 = readR(s2)
-                        val v = v1 * v2
-                        writeR(d, v)
+                    }
+        case '<' => val s = inst(1)
+                    val hh_hl = inst(2).toString + inst(3).toString
+                    if(readR(s) < 0) {
+                        writeR('P', readR('P') + readValue("0x" + hh_hl) * 2)
+                    } else {
                         writeR('P', readR('P') + 2)
-            case '/' => val s1 = inst(1)
-                        val s2 = inst(2)
-                        val d = inst(3)
-                        val v1 = readR(s1)
-                        val v2 = readR(s2)
-                        val v = v1 / v2
-                        writeR(d, v)
+                    }
+        case 'l' => val s = inst(1)
+                    val hh_hl = inst(2).toString + inst(3).toString
+                    if(readR(s) < 0) {
+                        writeR('P', readR('P') - readValue("0x" + hh_hl) * 2)
+                    } else {
                         writeR('P', readR('P') + 2)
-            case '%' => val s1 = inst(1)
-                        val s2 = inst(2)
-                        val d = inst(3)
-                        val v1 = readR(s1)
-                        val v2 = readR(s2)
-                        val v = v1 % v2
-                        writeR(d, v)
+                    }
+        case '>' => val s = inst(1)
+                    val hh_hl = inst(2).toString + inst(3).toString
+                    if(readR(s) > 0) {
+                        writeR('P', readR('P') + readValue("0x" + hh_hl) * 2)
+                    } else {
                         writeR('P', readR('P') + 2)
-            // Branch Operands
-            case 'B' => val s = inst(1)
-                        val hh_hl = inst(2).toString + inst(3).toString
-                        if (readR(s) != 0) {
-                            writeR('P', readR('P') + readValue("0x" + hh_hl) * 2)
-                        } else {
-                            writeR('P', readR('P') + 2)
-                        }
-            case 'b' => val s = inst(1)
-                        val hh_hl = inst(2).toString + inst(3).toString
-                        if(readR(s) != 0) {
-                            writeR('P', readR('P') - readValue("0x" + hh_hl) * 2)
-                        } else {
-                            writeR('P', readR('P') + 2)
-                        }
-            case 'E' => val s = inst(1)
-                        val hh_hl = inst(2).toString + inst(3).toString
-                        if(readR(s) == 0) {
-                            writeR('P', readR('P') + readValue("0x" + hh_hl) * 2)
-                        } else {
-                            writeR('P', readR('P') + 2)
-                        }
-            case 'e' => val s = inst(1)
-                        val hh_hl = inst(2).toString + inst(3).toString
-                        if(readR(s) == 0) {
-                            writeR('P', readR('P') - readValue("0x" + hh_hl) * 2)
-                        } else {
-                            writeR('P', readR('P') + 2)
-                        }
-            case '<' => val s = inst(1)
-                        val hh_hl = inst(2).toString + inst(3).toString
-                        if(readR(s) < 0) {
-                            writeR('P', readR('P') + readValue("0x" + hh_hl) * 2)
-                        } else {
-                            writeR('P', readR('P') + 2)
-                        }
-            case 'l' => val s = inst(1)
-                        val hh_hl = inst(2).toString + inst(3).toString
-                        if(readR(s) < 0) {
-                            writeR('P', readR('P') - readValue("0x" + hh_hl) * 2)
-                        } else {
-                            writeR('P', readR('P') + 2)
-                        }
-            case '>' => val s = inst(1)
-                        val hh_hl = inst(2).toString + inst(3).toString
-                        if(readR(s) > 0) {
-                            writeR('P', readR('P') + readValue("0x" + hh_hl) * 2)
-                        } else {
-                            writeR('P', readR('P') + 2)
-                        }
-            case 'g' => val s = inst(1)
-                        val hh_hl = inst(2).toString + inst(3).toString
-                        if(readR(s) > 0) {
-                            writeR('P', readR('P') - readValue("0x" + hh_hl) * 2)
-                        } else {
-                            writeR('P', readR('P') + 2)
-                        }
-            // Return
-            case 'R' => val s = inst(1)
-                        writeR('P', readR(s))
-            case 'H' => halt = true
-            // Jump and Imm
-            case 'J' => val imm = readValue("0x" + readI(readR('P') + 2))
-                        writeR(inst(1), readR('P') + 4)
-                        writeR('P', imm)
-            case 'I' => val imm = readValue("0x" + readI(readR('P') + 2))
-                        writeR(inst(1), imm)
-                        writeR('P', readR('P') + 4)
-            // Syscall
-            case '!' => val m = inst(1)
-                        var a = readR(m)
-                        val hh_hl = inst(2).toString + inst(3).toString
-                        hh_hl match {
-                            case "01" => {
-                                while (readM(a) != 0) {
-                                    print(readM(a).toChar)
-                                    a += 1
-                                }
-                            }
-                            case "02" => {
-                                val scanner = new java.util.Scanner(System.in)
-                                writeR(m, readValue(scanner.nextLine()))
+                    }
+        case 'g' => val s = inst(1)
+                    val hh_hl = inst(2).toString + inst(3).toString
+                    if(readR(s) > 0) {
+                        writeR('P', readR('P') - readValue("0x" + hh_hl) * 2)
+                    } else {
+                        writeR('P', readR('P') + 2)
+                    }
+        // Return
+        case 'R' => val s = inst(1)
+                    writeR('P', readR(s))
+        case 'H' => halt = true
+        // Jump and Imm
+        case 'J' => val imm = readValue("0x" + readI(readR('P') + 2))
+                    writeR(inst(1), readR('P') + 4)
+                    writeR('P', imm)
+        case 'I' => val imm = readValue("0x" + readI(readR('P') + 2))
+                    writeR(inst(1), imm)
+                    writeR('P', readR('P') + 4)
+        // Syscall
+        case '!' => val m = inst(1)
+                    var a = readR(m)
+                    val hh_hl = inst(2).toString + inst(3).toString
+                    hh_hl match {
+                        case "01" => {
+                            while (readM(a) != 0) {
+                                print(readM(a).toChar)
+                                a += 1
                             }
                         }
-                        writeR('P', readR('P') + 2)
-            case _ => throw new IllegalArgumentException("Instruction not found.")
-        }
+                        case "02" => {
+                            val scanner = new java.util.Scanner(System.in)
+                            writeR(m, readValue(scanner.nextLine()))
+                        }
+                    }
+                    writeR('P', readR('P') + 2)
+        case _ => throw new IllegalArgumentException("Instruction not found.")
+    }
 
+    mode match {
+        case "1" => println(f"I: $inst, R: ${new_regs.mkString("[", ", ", "]")}, M: ${new_mem.mkString("[", ", ", "]")}")
+                /*
+                Output a trace of execution that includes on each line the instruction executed,
+                the new values of any registers changed by that instruction,
+                and the address and value of any changed memory locations.
+                */
+        case "2" =>// is below
+                /*
+                Execute without tracing (faster) and output the values in each data section at the end of execution.
+                Use the second value in each the data section header as the number of memory locations to display at the end.
+                */
+        case "3" => // perform syscall operands - if not mode 3, then don't do any syscalls
 
-        mode match {
-            case "1" => println(f"$inst, R: ${new_regs.mkString("[", ", ", "]")}, M: ${new_mem.mkString("[", ", ", "]")}")
-                    /*
-                    Output a trace of execution that includes on each line the instruction executed,
-                    the new values of any registers changed by that instruction,
-                    and the address and value of any changed memory locations.
-                    */
-            case "2" =>// is below
-                    /*
-                    Execute without tracing (faster) and output the values in each data section at the end of execution.
-                    Use the second value in each the data section header as the number of memory locations to display at the end.
-                    */
-            case "3" => // perform syscall operands - if not mode 3, then don't do any syscalls
+        case "4" =>
+                /*
+                Analyse the program by outputting all the read-after-write hazards in the program.
+                For each one, output the addresses and pair of instructions.
+                */
+        case _ => throw new IllegalArgumentException("Not a valid mode.")
+    }
 
-            case "4" =>
-                    /*
-                    Analyse the program by outputting all the read-after-write hazards in the program.
-                    For each one, output the addresses and pair of instructions.
-                    */
-            case _ => throw new IllegalArgumentException("Not a valid mode.")
-        }
+    new_regs = List[Char]()
+    new_mem  = List[(Int,Int)]()
 
-        new_regs = List[Char]()
-        new_mem  = List[(Int,Int)]()
+} while (!halt)
 
-    } while (!halt)
-}
 
 if (mode == "2") {
     // output the values in each data section
