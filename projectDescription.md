@@ -77,6 +77,7 @@ code: 0x0
 # Example
 For example, the following program will write to the output memory (address starting at `0x2000`) the values from the input (`0x1000`) with the ones at the beginning and zeros at the end.
 
+
 ```
 Ia
 1000
