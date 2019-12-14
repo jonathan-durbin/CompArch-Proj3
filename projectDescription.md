@@ -11,20 +11,20 @@ The following tables describes all the opcodes and how the three characters that
 | **L** *R*  *D* _ | Load from memory at the address in register *R* and put the value in register  *D*. |
 | **S**  *S*  *W* _ | Store the value from register  *S* to memory at the address in register  *W*. |
 | | |
-| **+**  *S_1*  *S_2*  *D* |  Add the values from registers  *S_1*  *S_2* and  *S_2* and put the result in register  *D*. |
-| **-**  *S_1*  *S_2*  *D* | Subtract the value of registers  *S_2* from  *S_1* and put the result in register  *D*. |
-| **\***  *S_1*  *S_2*  *D* | Multiply the values from registers  *S_1* and  *S_2* and put the result in register  *D*. |
-| **/**  *S_1*  *S_2*  *D* | Divide the value of registers  *S_2* from  *S_1* and put the result in register  *D*. |
-| **%**  *S_1*  *S_2*  *D* | Divide the value of registers  *S_2* from  *S_1* and put the remainder in register  *D*. |
+| **+**  *S1*  *S2*  *D* |  Add the values from registers  *S1*  *S2* and  *S2* and put the result in register  *D*. |
+| **-**  *S1*  *S2*  *D* | Subtract the value of registers  *S2* from  *S1* and put the result in register  *D*. |
+| **\***  *S1*  *S2*  *D* | Multiply the values from registers  *S1* and  *S2* and put the result in register  *D*. |
+| **/**  *S1*  *S2*  *D* | Divide the value of registers  *S2* from  *S1* and put the result in register  *D*. |
+| **%**  *S1*  *S2*  *D* | Divide the value of registers  *S2* from  *S1* and put the remainder in register  *D*. |
 | | |
-| **B**  *S*  *H_h*  *H_l* | Branch. Add  *H_h* *H_l* times 2 to the PC if the value in register  *S* is not zero. |
-| **b**  *S*  *H_h*  *H_l* | Branch. Subtract  *H_h*  *H_l* times 2 from the PC if the value in register  *S* is not zero. |
-| **E**  *S*  *H_h*  *H_l* | Branch. Add  *H_h*  *H_l* times 2 to the PC if the value in register  *S* is equal zero. |
-| **e**  *S*  *H_h*  *H_l* | Branch. Subtract  *H_h*  *H_l* times 2 from the PC if the value in register  *S* is equal zero. |
-| **<**  *S*  *H_h*  *H_l* | Branch. Add  *H_h*  *H_l* times 2 to the PC if the value in register  *S* is less than zero. |
-| **l**  *S*  *H_h*  *H_l* | Branch. Subtract  *H_h*  *H_l* times 2 from the PC if the value in register  *S* is less than zero. |
-| **>**  *S*  *H_h*  *H_l* | Branch. Add  *H_h*  *H_l* times 2 to the PC if the value in register  *S* is greater than zero. |
-| **g**  *S*  *H_h*  *H_l* | Branch. Subtract  *H_h*  *H_l* times 2 from the PC if the value in register  *S* is greater than zero. |
+| **B**  *S*  *Hh*  *Hl* | Branch. Add  *Hh* *Hl* times 2 to the PC if the value in register  *S* is not zero. |
+| **b**  *S*  *Hh*  *Hl* | Branch. Subtract  *Hh*  *Hl* times 2 from the PC if the value in register  *S* is not zero. |
+| **E**  *S*  *Hh*  *Hl* | Branch. Add  *Hh*  *Hl* times 2 to the PC if the value in register  *S* is equal zero. |
+| **e**  *S*  *Hh*  *Hl* | Branch. Subtract  *Hh*  *Hl* times 2 from the PC if the value in register  *S* is equal zero. |
+| **<**  *S*  *Hh*  *Hl* | Branch. Add  *Hh*  *Hl* times 2 to the PC if the value in register  *S* is less than zero. |
+| **l**  *S*  *Hh*  *Hl* | Branch. Subtract  *Hh*  *Hl* times 2 from the PC if the value in register  *S* is less than zero. |
+| **>**  *S*  *Hh*  *Hl* | Branch. Add  *Hh*  *Hl* times 2 to the PC if the value in register  *S* is greater than zero. |
+| **g**  *S*  *Hh*  *Hl* | Branch. Subtract  *Hh*  *Hl* times 2 from the PC if the value in register  *S* is greater than zero. |
 | | |
 | **R**  *S* _ _ | Return. Set PC to the value in register  *S*. |
 | **H** _ _ _  | Halt. Stop executing. |
@@ -33,8 +33,8 @@ There are two additional instructions that take up 8 bytes each:
 
 | Op | Description |
 | -- | ----------- |
-| J  *D* _ _ H_3 H_2 H_1 H_0 | Jump. Set register  *D* to the value of PC plus 4. Set PC to the value given by the hex string H_3 H_2 H_1 H_0. |
-| I  *D* _ _ H_3 H_2 H_1 H_0 | Load Immediate. Set register  *D* to the value given by the hex string H_3 H_2 H_1 H_0 |
+| **J**  *D* _ _ *H3* *H2* *H1* *H0* | Jump. Set register  *D* to the value of PC plus 4. Set PC to the value given by the hex string *H3* *H2* *H1* *H0*. |
+| **I**  *D* _ _ *H3* *H2* *H1* *H0* | Load Immediate. Set register  *D* to the value given by the hex string *H3* *H2* *H1* *H0* |
 
 The machine itself is 16-bit, each register holds a 16-bit value. Each instruction takes up either two or four memory locations. The registers named by the ASCII digit characters `'0'` through `'9'` hold the value of that digit and cannot be overwritten. All other registers initially are zero. Values for conditions should be interpreted as two's complement 16-bit integers. The program counter (PC) is register `'P'` (initially zero, so all programs start executing with the instruction at memory location zero). Unless otherwise noted, the PC will increase by two after each instruction.
 
@@ -43,7 +43,7 @@ R-ASCII ISA supports operating system interaction with a "syscall" instruction:
 
 | Op | Description |
 | -- | ----------- |
-| ! MM  *H_h*  *H_l* | Syscall. Invoke operating system functionality number  *H_h*  *H_l* (in hexadecimal) reading from and/or writing to the register given as the second character. |
+| **!** *M*  *Hh*  *Hl* | Syscall. Invoke operating system functionality number  *Hh*  *Hl* (in hexadecimal) reading from and/or writing to the register given as the second character. |
 
 We will only have very simple I/O operations:
 
