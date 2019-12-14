@@ -10,7 +10,6 @@ var mem_trunc  = collection.mutable.Map[Int, Int]()
 var regs       = collection.mutable.Map[Char, Int]()
 var new_regs   = List[Char]()
 var new_mem    = List[(Int,Int)]()
-var hazard     = List('0', '0', 0) // (reg1, reg2, mem_loc)
 
 
 def writeM(a: Int, v: Int) = {
@@ -122,7 +121,7 @@ while (lines.hasNext) {
 }
 
 
-writeR('P', 0)
+// writeR('P', 0)
 var inst = ""
 var halt = false
 do {
