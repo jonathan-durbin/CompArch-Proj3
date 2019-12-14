@@ -33,8 +33,8 @@ There are two additional instructions that take up 8 bytes each:
 
 | Op | Description |
 | -- | ----------- |
-| J  *D* _ _ H_3 H_2 H_1 H_0 | Jump. Set register  *D* to the value of PC plus 4. Set PC to the value given by the hex string H_3 H_2 H_1 H_0. |
-| I  *D* _ _ H_3 H_2 H_1 H_0 | Load Immediate. Set register  *D* to the value given by the hex string H_3 H_2 H_1 H_0 |
+| **J**  *D* _ _ H_3 H_2 H_1 H_0 | Jump. Set register  *D* to the value of PC plus 4. Set PC to the value given by the hex string H_3 H_2 H_1 H_0. |
+| **I**  *D* _ _ H_3 H_2 H_1 H_0 | Load Immediate. Set register  *D* to the value given by the hex string H_3 H_2 H_1 H_0 |
 
 The machine itself is 16-bit, each register holds a 16-bit value. Each instruction takes up either two or four memory locations. The registers named by the ASCII digit characters `'0'` through `'9'` hold the value of that digit and cannot be overwritten. All other registers initially are zero. Values for conditions should be interpreted as two's complement 16-bit integers. The program counter (PC) is register `'P'` (initially zero, so all programs start executing with the instruction at memory location zero). Unless otherwise noted, the PC will increase by two after each instruction.
 
@@ -43,7 +43,7 @@ R-ASCII ISA supports operating system interaction with a "syscall" instruction:
 
 | Op | Description |
 | -- | ----------- |
-| ! MM  *H_h*  *H_l* | Syscall. Invoke operating system functionality number  *H_h*  *H_l* (in hexadecimal) reading from and/or writing to the register given as the second character. |
+| **!** MM  *H_h*  *H_l* | Syscall. Invoke operating system functionality number  *H_h*  *H_l* (in hexadecimal) reading from and/or writing to the register given as the second character. |
 
 We will only have very simple I/O operations:
 
